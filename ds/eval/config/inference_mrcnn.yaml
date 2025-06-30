@@ -1,0 +1,17 @@
+ckpt_path: /path/to/checkpoint/ckpt
+classes: [na, nuclei, cyto, rbc, mp]
+augmentation:
+  base_aug_cf:
+     get_third_channel_params:
+         mode: three_channels
+         subtracted_base: 5000
+  train_strong_aug_cf:
+     p: 0,
+     augs: []
+  val_strong_aug_cf: same
+inference_batch_size: 16
+confidence: 0.5
+device: cuda
+
+inference_dir: /path/to/patches
+out_dir: /path/to/output

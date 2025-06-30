@@ -1,0 +1,98 @@
+infra:
+  exp_name: srh_segmentation
+  comment: 5fold_training
+  log_dir: /path/to/experiments
+  log_gpu: false
+  seed: 1000
+data:
+  set: scsrh
+  which: SRHSingleCell
+  direct_params:
+    common:
+      data_root: /path/to/srh550
+      slides_file: /path/to/srh550/srh550_meta.csv
+      removed_labels:
+        - axons
+        - blood_vessel
+        - chromatin
+    train:
+      folds: [0,1,2,4]
+    val:
+      folds: [3]
+  augmentations:
+    base_aug_cf:
+      get_third_channel_params:
+        mode: three_channels
+        subtracted_base: 5000
+    train_strong_aug_cf:
+      p: 0.5
+      augs:
+        - which: random_horizontal_flip
+          params: {}
+        - which: random_vertical_flip
+          params: {}
+    val_strong_aug_cf:
+      p: 0
+      augs: []
+loader:
+  direct_params:
+    common:
+      num_workers: 4
+    train:
+      batch_size: 2
+      drop_last: True
+      shuffle: True
+    val:
+      batch_size: 2
+      drop_last: False
+      shuffle: False
+
+model:
+  name: mrcnn
+  params: {}
+
+training:
+  num_epochs: 20
+  optimizer:
+    which: adamw
+    scale_lr: False
+    params:
+      lr: 2.0e-4
+      betas: [0.9, 0.999]
+      eps: 1.0e-8
+      weight_decay: 0.0001
+      amsgrad: False
+  scheduler:
+    which: cos_linear_warmup
+    params:
+      num_warmup_steps: 0
+      num_cycles: 0.5
+  resume_checkpoint: null
+valid:
+  freq:
+    interval: 10
+    unit: "epoch"
+tune:
+  diagonal_items: true
+  params:
+    infra/comment:
+    - dev_fold0
+    - dev_fold1
+    - dev_fold2
+    - dev_fold3
+    - dev_fold4
+    - dev_fold_all
+    data/direct_params/train/folds:
+    - [1,2,3,4]
+    - [0,2,3,4]
+    - [0,1,3,4]
+    - [0,1,2,4]
+    - [0,1,2,3]
+    - [0,1,2,3,4]
+    data/direct_params/val/folds:
+    - [0]
+    - [1]
+    - [2]
+    - [3]
+    - [4]
+    - [0,1,2,3,4]
