@@ -1,6 +1,5 @@
 # Copyright (c) 2025 University of Michigan. All rights reserved.
 # Licensed under the MIT License. See LICENSE for license information.
-
 """Script for running Mask R-CNN model evaluation"""
 
 import os
@@ -32,8 +31,8 @@ def get_ims(loader):
 
 def get_predictions(cf, loader, celltypes):
     pl_module = MRCNNSystem
-    ckpt_path = cf["infra"]["log_dir"] + cf["infra"]["exp_name"] + "/" + cf[
-        "eval"]["ckpt_path"]
+    ckpt_path = os.path.join(cf["infra"]["log_dir"], cf["infra"]["exp_name"],
+                             cf["eval"]["ckpt_path"])
     params = {"cf": cf, "num_it_per_ep": 0}
     model = pl_module.load_from_checkpoint(ckpt_path, **params)
     trainer = pl.Trainer(accelerator="auto",
@@ -95,12 +94,11 @@ def main():
     celltypes = train_loader.dataset.sc_label_map
     del celltypes["n/a"]
 
-    do_train = False # perform evaluation on training set
+    do_train = False  # perform evaluation on training set
 
     if do_train:
-        _, train_preds, train_tumors, _ = get_predictions(cf,
-                                                          train_loader,
-                                                          celltypes)
+        _, train_preds, train_tumors, _ = get_predictions(
+            cf, train_loader, celltypes)
         torch.save(train_preds, opj(pred_dir, "train_nuclei_pred.pt"))
         train_targets = get_targets(train_loader, celltypes)
         torch.save(train_targets, opj(pred_dir, "train_targets.pt"))

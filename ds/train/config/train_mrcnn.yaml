@@ -1,95 +1,91 @@
 infra:
-  exp_name: srh_segmentation
-  comment: 5fold_training
-  log_dir: /path/to/experiments
-  log_gpu: false
-  seed: 1000
+  exp_name: srh_segmentation      # Experiment name
+  comment: 5fold_training         # Run identifier
+  log_dir: /path/to/experiments   # Absolute path for logs
+  seed: 1000                      # Seed for random number generation
 data:
-  set: scsrh
-  which: SRHSingleCell
+  which: SRHSingleCell            # Dataset type (default SRHSingleCell)
   direct_params:
     common:
-      data_root: /path/to/srh550
-      slides_file: /path/to/srh550/srh550_meta.csv
-      removed_labels:
+      data_root: /path/to/srh550                    # Images and labels directory
+      slides_file: /path/to/srh550/srh550_meta.csv  # Dataset splits file
+      removed_labels:                               # Labels to not include in dataset
         - axons
         - blood_vessel
         - chromatin
     train:
-      folds: [0,1,2,4]
+      folds: [0,1,2,4]            # Training fold indices
     val:
-      folds: [3]
+      folds: [3]                  # Validation fold indices
   augmentations:
     base_aug_cf:
       get_third_channel_params:
-        mode: three_channels
-        subtracted_base: 5000
+        mode: three_channels      # SRH image preprocessing method (default three_channels)
+        subtracted_base: 5000     # Constant to specify basae intensity for red color channel (default 5000)
     train_strong_aug_cf:
-      p: 0.5
-      augs:
-        - which: random_horizontal_flip
-          params: {}
+      p: 0.5                      # Likelihood of applying each training augmentation
+      augs:                       # List of training augmentations (options listed in `get_strong_aug` function in `ds/datasets/db_improc.py`)
+        - which: random_horizontal_flip   # Augmentation type
+          params: {}                      # Parameters needed for augmentation constructor
         - which: random_vertical_flip
           params: {}
-    val_strong_aug_cf:
-      p: 0
-      augs: []
+    val_strong_aug_cf:            # Can use `same` to copy train_strong_aug_cf configuration
+      p: 0                        # Likelihood of applying each validation augmentation
+      augs: []                    # List of possible validation augmentations (options same as training augmentations)
 loader:
   direct_params:
-    common:
-      num_workers: 4
+    common:                       # Shared parameters between training and validation data loaders
+      num_workers: 4              # Number of subprocesses for data loading
     train:
-      batch_size: 2
-      drop_last: True
-      shuffle: True
+      batch_size: 2               # Number of data samples in each training batch
+      drop_last: True             # Discard final training batch if fewer samples than batch size
+      shuffle: True               # Shuffle training dataset before splitting into batches
     val:
-      batch_size: 2
-      drop_last: False
-      shuffle: False
+      batch_size: 2               # Number of data samples in each validation batch
+      drop_last: False            # Discard final validation batch if fewer samples than batch size
+      shuffle: False              # Shuffle validation dataset before splitting into batches
 
 model:
-  name: mrcnn
-  params: {}
+  name: mrcnn                     # Model type to train (default mrcnn)
 
 training:
-  num_epochs: 20
+  num_epochs: 20                  # Total training epochs
   optimizer:
-    which: adamw
-    scale_lr: False
-    params:
-      lr: 2.0e-4
-      betas: [0.9, 0.999]
-      eps: 1.0e-8
-      weight_decay: 0.0001
-      amsgrad: False
+    which: adamw                  # Optimizer type (adamw or sgd; default adamw)
+    scale_lr: False               # Scale learning rate with the effective batch size
+    params:                       # Parameters for optimizer
+      lr: 2.0e-4                  # Learning rate
+      betas: [0.9, 0.999]         # Decay rates
+      eps: 1.0e-8                 # Weight smoothing
+      weight_decay: 0.0001        # L2 regularization weight decay
+      amsgrad: False              # Ensure learning rate is non-increasing
   scheduler:
-    which: cos_linear_warmup
-    params:
-      num_warmup_steps: 0
-      num_cycles: 0.5
-  resume_checkpoint: null
+    which: cos_linear_warmup      # Scheduler type (step_lr, cos_warm_restart, or cos_linear_warmup; default cos_linear_warmup)
+    params:                       # Parameters for scheduler
+      num_warmup_steps: 0         # Training steps for learning rate warmup
+      num_cycles: 0.5             # Number of cosine "waves" learning rate follows
 valid:
   freq:
-    interval: 10
-    unit: "epoch"
-tune:
-  diagonal_items: true
+    interval: 10                  # Number of units before validation is run
+    unit: "epoch"                 # Unit to measure (epoch or iter)
+tune:                             # Creates configs for multiple jobs submitted at once, overrides prior configs above
+  diagonal_items: true            # Disable running all combinations of `tune/params`
   params:
-    infra/comment:
+    infra/comment:                    # Tune task comments
     - dev_fold0
     - dev_fold1
     - dev_fold2
     - dev_fold3
     - dev_fold4
     - dev_fold_all
-    data/direct_params/train/folds:
+    data/direct_params/train/folds:   # Tune task training folds
     - [1,2,3,4]
     - [0,2,3,4]
     - [0,1,3,4]
     - [0,1,2,4]
     - [0,1,2,3]
     - [0,1,2,3,4]
-    data/direct_params/val/folds:
+    data/direct_params/val/folds:     # Tune task validation folds
     - [0]
     - [1]
     - [2]

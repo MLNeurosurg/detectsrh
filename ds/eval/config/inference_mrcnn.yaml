@@ -1,17 +1,17 @@
-ckpt_path: /path/to/checkpoint/ckpt
-classes: [na, nuclei, cyto, rbc, mp]
+ckpt_path: /path/to/checkpoint/ckpt   # Absolute path for model checkpoint
+classes: [na, nuclei, cyto, rbc, mp]  # Labels model can predict
 augmentation:
-  base_aug_cf:
-     get_third_channel_params:
-         mode: three_channels
-         subtracted_base: 5000
-  train_strong_aug_cf:
-     p: 0,
-     augs: []
-  val_strong_aug_cf: same
-inference_batch_size: 16
-confidence: 0.5
-device: cuda
+   base_aug_cf:
+      get_third_channel_params:
+         mode: three_channels     # SRH image preprocessing method (default three_channels)
+         subtracted_base: 5000    # Constant to specify basae intensity for red color channel (default 5000)   
+   train_strong_aug_cf:
+      p: 0                        # Likelihood of applying each training augmentation
+      augs: []                    # List of training augmentations (options listed in `get_strong_aug` function in `ds/datasets/db_improc.py`)
+   val_strong_aug_cf: same        # Can use `same` to copy `augmentation/train_strong_aug_cf` configuration
+inference_batch_size: 16          # Number of data samples in ech inference batch      
+confidence: 0.5                   # Filters out predictions under confidence before applying non-maximum suppression
+device: cuda                      # Hardware to run inference on (cuda, cpu)
 
-inference_dir: /path/to/patches
-out_dir: /path/to/output
+inference_dir: /path/to/patches   # Absolute path for images to run inference on
+out_dir: /path/to/ouput          # Absolute path for inference output

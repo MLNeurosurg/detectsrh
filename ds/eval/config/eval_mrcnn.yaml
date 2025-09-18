@@ -1,76 +1,71 @@
 infra:
-  exp_name: srh_segmentation
-  comment: 5fold_training
-  log_dir: /path/to/experiments
-  log_gpu: false
-  seed: 1000
+  exp_name: srh_segmentation      # Experiment name
+  comment: 5fold_training         # Run identifier
+  log_dir: /path/to/experiments   # Absolute path for logs
+  seed: 1000                      # Seed for random number generation
 data:
-  set: scsrh
-  which: SRHSingleCell
+  which: SRHSingleCell            # Dataset type (default SRHSinglecell)
   direct_params:
     common:
-      data_root: /path/to/srh550
-      slides_file: /path/to/srh550/srh550_meta.csv
-      removed_labels:
+      data_root: /path/to/srh550                    # Images and labels directory
+      slides_file: /path/to/srh550/srh550_meta.csv  # Dataset splits file
+      removed_labels:                               # Labels to not include in dataset
         - axons
         - blood_vessel
         - chromatin
     train:
-      folds: [0,1,2,4]
+      folds: [0,1,2,4]            # Training fold indices
     val:
-      folds: [3]
+      folds: [3]                  # Validation fold indices
   augmentations:
     base_aug_cf:
       get_third_channel_params:
-        mode: three_channels
-        subtracted_base: 5000
+        mode: three_channels      # SRH image preprocessing method (default three_channels)
+        subtracted_base: 5000     # Constant to specify basae intensity for red color channel (default 5000)
     train_strong_aug_cf:
-      p: 0
-      augs: []
+      p: 0                        # Likelihood of applying each training augmentation
+      augs: []                    # List of training augmentations (options listed in `get_strong_aug` function in `ds/datasets/db_improc.py`)
     val_strong_aug_cf:
-      p: 0
-      augs: []
+      p: 0                        # Likelihood of applying each validation augmentation
+      augs: []                    # List of possible validation augmentations (options same as training augmentations)
 loader:
   direct_params:
-    common:
-      pin_memory: True
-      num_workers: 0
-      batch_size: 8
-      drop_last: False
-      shuffle: False
-    val: {}
+    common:                       # Shared parameters between training and validation data loaders
+      num_workers: 0              # Number of subprocesses for data loading
+      batch_size: 8               # Number of data samples in each batch
+      drop_last: False            # Discard final batch if fewer samples than batch size 
+      shuffle: False              # Shuffle dataset before splitting into batches
+
 model:
-  name: mrcnn
-  valid_params:
-    confidence: 0.50
+  name: mrcnn                     # Model type to train (default mrcnn)
+
 eval:
-  ckpt_path: relative/path/to/checkpoint.ckpt
-  save_train_pred: false
+  ckpt_path: relative/path/to/checkpoint.ckpt   # Relavtive path for model checkpoint from experiment directory
 tune:
-  diagonal_items: true
+  diagonal_items: true            # Disable running all combinations of `tune/params`
   params:
-    eval/ckpt_path:
+    eval/ckpt_path:                   # Relative paths for tune task model checkpoints
     - relative/path/to/fold0/checkpoint.ckpt
     - relative/path/to/fold1/checkpoint.ckpt
     - relative/path/to/fold2/checkpoint.ckpt
     - relative/path/to/fold3/checkpoint.ckpt
     - relative/path/to/fold4/checkpoint.ckpt
     - relative/path/to/fold_all/checkpoint.ckpt
-    infra/comment:
+    infra/comment:                    # Tune task comments
     - dev_fold_0
     - dev_fold_1
     - dev_fold_2
     - dev_fold_3
     - dev_fold_4
     - dev_fold_all
-    data/direct_params/train/folds:
+    data/direct_params/train/folds:   # Tune task training folds
     - [1,2,3,4]
     - [0,2,3,4]
     - [0,1,3,4]
     - [0,1,2,4]
     - [0,1,2,3]
     - [0,1,2,3,4]
-    data/direct_params/val/folds:
+    data/direct_params/val/folds:     # Tune task validation folds
     - [0]
     - [1]
     - [2]
