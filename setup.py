@@ -35,6 +35,8 @@ setup(
         "gpustat",
         "einops",
         "cellpose",
-        "django-labeller", "segment_anything"
+        "django-labeller",
+        "segment_anything",
+        "pycocotools"
     ],
     dependency_links=['https://download.pytorch.org/whl/cu116'])
