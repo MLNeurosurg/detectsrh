@@ -7,9 +7,9 @@ data:
   which: SRHSingleCell            # Dataset type (default SRHSingleCell)
   direct_params:
     common:
-      data_root: /path/to/srh550                    # Images and labels directory
-      slides_file: /path/to/srh550/srh550_meta.csv  # Dataset splits file
-      removed_labels:                               # Labels to not include in dataset
+      data_root: /path/to/srh550              # Absolute path for images and labels directory
+      slides_file: /path/to/srh550_meta.csv   # Absolute path fot dataset splits file
+      removed_labels:                         # Labels to exclude from dataset
         - axons
         - blood_vessel
         - chromatin
@@ -29,7 +29,7 @@ data:
           params: {}                      # Parameters needed for augmentation constructor
         - which: random_vertical_flip
           params: {}
-    val_strong_aug_cf:            # Can use `same` to copy train_strong_aug_cf configuration
+    val_strong_aug_cf:            # Can use `same` to copy train_strong_aug_cf values
       p: 0                        # Likelihood of applying each validation augmentation
       augs: []                    # List of possible validation augmentations (options same as training augmentations)
 loader:
@@ -68,7 +68,7 @@ valid:
   freq:
     interval: 10                  # Number of units before validation is run
     unit: "epoch"                 # Unit to measure (epoch or iter)
-tune:                             # Creates configs for multiple jobs submitted at once, overrides prior configs above
+tune:                             # Create configs for multiple jobs submitted at once, overrides prior configs above
   diagonal_items: true            # Disable running all combinations of `tune/params`
   params:
     infra/comment:                    # Tune task comments

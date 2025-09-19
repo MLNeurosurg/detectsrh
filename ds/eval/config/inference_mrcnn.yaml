@@ -1,5 +1,5 @@
-ckpt_path: /path/to/checkpoint/ckpt   # Absolute path for model checkpoint
-classes: [na, nuclei, cyto, rbc, mp]  # Labels model can predict
+ckpt_path: /path/to/checkpoint.ckpt   # Absolute path for model checkpoint
+classes: [na, nuclei, cyto, rbc, mp]  # Classes model predicts
 augmentation:
    base_aug_cf:
       get_third_channel_params:
@@ -10,8 +10,8 @@ augmentation:
       augs: []                    # List of training augmentations (options listed in `get_strong_aug` function in `ds/datasets/db_improc.py`)
    val_strong_aug_cf: same        # Can use `same` to copy `augmentation/train_strong_aug_cf` configuration
 inference_batch_size: 16          # Number of data samples in ech inference batch      
-confidence: 0.5                   # Filters out predictions under confidence before applying non-maximum suppression
+confidence: 0.5                   # Detection threshold after nms
 device: cuda                      # Hardware to run inference on (cuda, cpu)
 
-inference_dir: /path/to/patches   # Absolute path for images to run inference on
-out_dir: /path/to/ouput          # Absolute path for inference output
+inference_dir: /path/to/patches   # Absolute path for input images directory
+out_dir: /path/to/output          # Absolute path for output directory

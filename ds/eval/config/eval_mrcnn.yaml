@@ -4,12 +4,12 @@ infra:
   log_dir: /path/to/experiments   # Absolute path for logs
   seed: 1000                      # Seed for random number generation
 data:
-  which: SRHSingleCell            # Dataset type (default SRHSinglecell)
+  which: SRHSingleCell            # Dataset type (default SRHSingleCell)
   direct_params:
     common:
-      data_root: /path/to/srh550                    # Images and labels directory
-      slides_file: /path/to/srh550/srh550_meta.csv  # Dataset splits file
-      removed_labels:                               # Labels to not include in dataset
+      data_root: /path/to/srh550              # Absolute path for images and labels directory
+      slides_file: /path/to/srh550_meta.csv   # Absolute path for dataset splits file
+      removed_labels:                         # Labels to exclude from dataset
         - axons
         - blood_vessel
         - chromatin
@@ -25,7 +25,7 @@ data:
     train_strong_aug_cf:
       p: 0                        # Likelihood of applying each training augmentation
       augs: []                    # List of training augmentations (options listed in `get_strong_aug` function in `ds/datasets/db_improc.py`)
-    val_strong_aug_cf:
+    val_strong_aug_cf:            # Can use `same` to copy train_strong_aug_cf values
       p: 0                        # Likelihood of applying each validation augmentation
       augs: []                    # List of possible validation augmentations (options same as training augmentations)
 loader:
@@ -40,11 +40,11 @@ model:
   name: mrcnn                     # Model type to train (default mrcnn)
 
 eval:
-  ckpt_path: relative/path/to/checkpoint.ckpt   # Relavtive path for model checkpoint from experiment directory
-tune:
+  ckpt_path: relative/path/to/checkpoint.ckpt   # Relative path to model checkpoint (formatted `run_timestamp_seed_comment/models/ckpt.ckpt`)
+tune:                             # Create configs for multiple jobs submitted at once, overrides prior configs above
   diagonal_items: true            # Disable running all combinations of `tune/params`
   params:
-    eval/ckpt_path:                   # Relative paths for tune task model checkpoints
+    eval/ckpt_path:                   # Tune task relative paths to model checkpoints
     - relative/path/to/fold0/checkpoint.ckpt
     - relative/path/to/fold1/checkpoint.ckpt
     - relative/path/to/fold2/checkpoint.ckpt
