@@ -37,7 +37,7 @@ loader:
       shuffle: False              # Shuffle dataset before splitting into batches
 
 model:
-  name: mrcnn                     # Model type to train (default mrcnn)
+  name: mrcnn                     # Model type to eval (default mrcnn)
 
 eval:
   ckpt_path: relative/path/to/checkpoint.ckpt   # Relative path to model checkpoint (formatted `run_timestamp_seed_comment/models/ckpt.ckpt`)
